@@ -1,0 +1,200 @@
+//////////////////////////////
+// SAFE ZONE
+//////////////////////////////
+
+const zoneGeometry = new THREE.RingGeometry(40,41,64);
+
+const zoneMaterial = new THREE.MeshBasicMaterial({
+color:0x00ffff,
+side:THREE.DoubleSide
+});
+
+const zone = new THREE.Mesh(
+zoneGeometry,
+zoneMaterial
+);
+
+zone.rotation.x = -Math.PI/2;
+
+scene.add(zone);
+
+let zoneSize = 40;
+
+//////////////////////////////
+// BUILDINGS
+//////////////////////////////
+
+for(let i=0;i<20;i++){
+
+const building = new THREE.Mesh(
+
+new THREE.BoxGeometry(
+Math.random()*4+2,
+Math.random()*10+5,
+Math.random()*4+2
+),
+
+new THREE.MeshStandardMaterial({
+color:0x808080
+})
+
+);
+
+building.position.set(
+Math.random()*80-40,
+3,
+Math.random()*80-40
+);
+
+scene.add(building);
+
+}
+
+//////////////////////////////
+// CAR
+//////////////////////////////
+
+const car = new THREE.Mesh(
+
+new THREE.BoxGeometry(3,1,5),
+
+new THREE.MeshStandardMaterial({
+color:0x0000ff
+})
+
+);
+
+car.position.set(10,1,10);
+
+scene.add(car);
+
+//////////////////////////////
+// GUN TYPES
+//////////////////////////////
+
+let gunType = "AK";
+
+document.addEventListener("keydown",(e)=>{
+
+if(e.key==="1") gunType="AK";
+
+if(e.key==="2") gunType="SNIPER";
+
+});
+
+//////////////////////////////
+// SHOOT SYSTEM
+//////////////////////////////
+
+document.getElementById("shoot").onclick=()=>{
+
+const speed = gunType==="SNIPER" ? 1 : 0.5;
+
+const bullet = new THREE.Mesh(
+
+new THREE.SphereGeometry(0.2),
+
+new THREE.MeshBasicMaterial({
+color:0xffff00
+})
+
+);
+
+bullet.position.copy(player.position);
+
+scene.add(bullet);
+
+function animateBullet(){
+
+bullet.position.z -= speed;
+
+enemies.forEach((enemy,index)=>{
+
+if(enemy && bullet.position.distanceTo(enemy.position)<1){
+
+scene.remove(enemy);
+
+enemies[index]=null;
+
+kills++;
+
+document.getElementById("hud").innerHTML=
+`
+LAND ARAB 🔥<br>
+HP: 100<br>
+Kills: ${kills}<br>
+Gun: ${gunType}
+`;
+
+}
+
+});
+
+requestAnimationFrame(animateBullet);
+
+}
+
+animateBullet();
+
+};
+
+//////////////////////////////
+// ZONE SHRINK
+//////////////////////////////
+
+setInterval(()=>{
+
+zoneSize -= 1;
+
+zone.scale.set(zoneSize/40,zoneSize/40,1);
+
+if(zoneSize<10){
+
+zoneSize = 40;
+
+}
+
+},3000);
+
+//////////////////////////////
+// SIMPLE MENU
+//////////////////////////////
+
+const menu = document.createElement("div");
+
+menu.innerHTML = `
+<div style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:100;
+">
+
+<h1>LAND ARAB</h1>
+
+<button id="startGame"
+style="
+padding:20px;
+font-size:25px;
+">
+START
+</button>
+
+</div>
+`;
+
+document.body.appendChild(menu);
+
+document.getElementById("startGame").onclick=()=>{
+
+menu.remove();
+
+};
